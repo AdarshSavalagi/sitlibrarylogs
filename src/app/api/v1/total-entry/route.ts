@@ -5,7 +5,7 @@ import {connect} from "../../../../utils/database";
 
 connect();
 
-
+export const revalidate = 1;
 export const GET=async()=>{
     try {
         const userList = await StudentEntry.find({});

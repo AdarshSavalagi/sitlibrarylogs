@@ -3,6 +3,7 @@ import {NextResponse} from "next/server";
 import StudentEntry from "../../../../models/student.models";
 
 connect();
+export const revalidate = 1;
 
 export const GET= async ()=>{
     try {
