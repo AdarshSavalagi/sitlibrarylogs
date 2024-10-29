@@ -13,9 +13,17 @@ export default function Page() {
                 const fetchData = async () => {
                         const response = await axios.get('/api/v1/total-entry');
 
-                        setEntries(response.data);
-                        setOriginalEntries(response.data); // Save original entries for filtering
-                        setTotalInside(response.data.length);
+                        // setEntries(response.data);
+                        // setOriginalEntries(response.data); // Save original entries for filtering
+                        // setTotalInside(response.data.length);
+
+
+                        // Sort entries by date in descending order (most recent first)
+                        const sortedEntries = response.data.sort((a, b) => new Date(b.entry) - new Date(a.entry));
+
+                        setEntries(sortedEntries);
+                        setOriginalEntries(sortedEntries); // Save sorted entries for filtering
+                        setTotalInside(sortedEntries.length);
                 };
 
                 fetchData();
@@ -103,6 +111,9 @@ export default function Page() {
                                                             USN
                                                     </th>
                                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            NAME
+                                                    </th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                             Entry Time
                                                     </th>
                                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -122,6 +133,9 @@ export default function Page() {
                                                     >
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                                     {entry.usn}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                                    {entry.name}
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                                     {new Date(entry.entry).toLocaleString()}
