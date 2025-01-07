@@ -19,37 +19,41 @@ export async function POST(req) {
         const students = await req.json();
         console.log("Received student data:", students);
 
-        let dataSaved = false;
+      
 
-        for (const studentData of students) {
-            const { usn, name } = studentData;
-
+        const bulkOps = students.map(({ usn, name }) => {
             if (!usn || !name) {
-                return NextResponse.json(
-                    { status: "error", message: "Missing USN or Name" },
-                    { status: 400 }
-                );
+                throw new Error("Missing USN or Name"); // Throw error for validation
             }
-
+        
             const lowerUsn = usn.toLowerCase();
-            const student = await StudentEntry.findOne({ usn: lowerUsn });
-
-            if (!student) {
-                const newStudent = new StudentEntry({ usn: lowerUsn, name });
-                await newStudent.save();
-                dataSaved = true;
-            }else{
-                student.name = name;
-                await student.save();
-
-            }
+        
+            return {
+                updateOne: {
+                    filter: { usn: lowerUsn }, // Check if the student already exists
+                    update: { $set: { name } }, // Update or set the name
+                    upsert: true, // Insert a new document if no match is found
+                }
+            };
+        });
+        
+        try {
+            const result = await StudentEntry.bulkWrite(bulkOps);
+            return NextResponse.json({
+                status: "success",
+                message: `${result.upsertedCount} new students added, ${result.modifiedCount} updated.`,
+            });
+        } catch (error) {
+            console.error("Error during bulkWrite:", error);
+            return NextResponse.json({
+                status: "error",
+                message: "Failed to process student data.",
+                error: error.message
+            }, { status: 500 });
         }
+        
 
-        if (dataSaved) {
-            return NextResponse.json({ message: "Data saved successfully!" });
-        } else {
-            return NextResponse.json({ message: "Data already saved" });
-        }
+       
     } catch (error) {
         console.error("Error saving data:", error);
         return NextResponse.json({ message: "Error saving data", error }, { status: 500 });
