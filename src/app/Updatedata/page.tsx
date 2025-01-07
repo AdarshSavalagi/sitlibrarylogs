@@ -36,7 +36,8 @@ export default function ExcelUploader() {
             const response = await axios.post('/api/v2/studentdata', jsonData, {
               headers: { 'Content-Type': 'application/json' },
             });
-            setMessage('Data synced successfully!');
+            console.log(response.data["message"]);
+            setMessage(response.data["message"]);
             setError('');
           } catch (err) {
             console.error("Error syncing data:", err);
