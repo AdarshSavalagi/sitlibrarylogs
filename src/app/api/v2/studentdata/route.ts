@@ -1,48 +1,47 @@
 import { NextResponse } from "next/server";
+// import protobuf from "protobufjs";
 import StudentEntry from "../../../../models/StudentName";
 import { connect } from "../../../../utils/database";
-
+// import studentProto from "../../../../proto/student.proto"; 
 
 connect();
 
 export async function POST(req) {
     try {
-        const studentArray = await req.json(); 
+        // const buffer = await req.arrayBuffer(); // Receive raw binary data
+        // // const root = await protobuf.load(studentProto);
+        // const StudentData = root.lookupType("StudentData");
 
-        
-        console.log("Received student data:", studentArray);
-
+        // // Decode Protobuf data
+        // const decodedData = StudentData.decode(new Uint8Array(buffer));
+        // const students = decodedData.students;
+        await connect();
+        const students = await req.json();
+        console.log("Received student data:", students);
 
         let dataSaved = false;
 
-      
-        for (const studentData of studentArray) {
-            const { usn, name } = studentData; 
-            const lowerUsn = usn.toLowerCase(); 
+        for (const studentData of students) {
+            const { usn, name } = studentData;
 
-
-            if (!lowerUsn) {
-                return NextResponse.json({
-                    status: "error",
-                    message: "USN is null"
-                }, { status: 400 });
+            if (!usn || !name) {
+                return NextResponse.json(
+                    { status: "error", message: "Missing USN or Name" },
+                    { status: 400 }
+                );
             }
 
-            if (!name) {
-                return NextResponse.json({
-                    status: "error",
-                    message: "Name is null"
-                }, { status: 400 });
-            }
-
+            const lowerUsn = usn.toLowerCase();
             const student = await StudentEntry.findOne({ usn: lowerUsn });
+
             if (!student) {
-                const newStudent = new StudentEntry({
-                    usn: lowerUsn,
-                    name: name 
-                });
+                const newStudent = new StudentEntry({ usn: lowerUsn, name });
                 await newStudent.save();
-                dataSaved = true; 
+                dataSaved = true;
+            }else{
+                student.name = name;
+                await student.save();
+
             }
         }
 
