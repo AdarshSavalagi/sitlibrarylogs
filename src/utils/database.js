@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 export async function connect() {
     try {
-        mongoose.connect(process.env.MONGO_URI||'mongodb+srv://alumni:vBw8r6VyZZKWOtYb@serverlessinstance0.rrix0lr.mongodb.net/librarylogs?retryWrites=true&w=majority&appName=ServerlessInstance0',{
+        mongoose.connect(process.env.MONGO_URI||'mongodb+srv://admin:admin@cluster0.uqxqc4p.mongodb.net/sit_library?retryWrites=true&w=majority&appName=ServerlessInstance0',{
             serverSelectionTimeoutMS: 30000, 
             socketTimeoutMS: 30000,   
         });
